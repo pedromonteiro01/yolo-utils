@@ -113,8 +113,6 @@ def plot_iou_results(results):
     
     plt.tight_layout()
     plt.savefig("iou_results.png")
-    plt.show()
-
 
 if __name__ == '__main__':
     main()
