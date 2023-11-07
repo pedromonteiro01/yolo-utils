@@ -2,6 +2,8 @@ import os
 import torch
 import argparse
 from yolov5.utils.metrics import bbox_iou
+import matplotlib.pyplot as plt
+import re
 
 def load_tensor_from_file(filename):
     with open(filename, 'r') as f:
@@ -76,6 +78,43 @@ def main(detect_folder=None, valid_folder=None):
     for folder_path, avg_iou in results:
         print(f"Evaluating folder: {folder_path}")
         print(f"Average IoU for {folder_path}: {avg_iou:.2f}\n")
+
+    # Plot the results
+    plot_iou_results(results)
+
+def extract_parameters(folder_name):
+    batch_match = re.search(r'batch(\d+)', folder_name)
+    epoch_match = re.search(r'epoch(\d+)', folder_name)
+    batch_size = int(batch_match.group(1)) if batch_match else None
+    epoch_number = int(epoch_match.group(1)) if epoch_match else None
+    return batch_size, epoch_number
+
+def plot_iou_results(results):
+    batch_sizes = []
+    epoch_numbers = []
+    iou_values = []
+
+    for folder_path, avg_iou in results:
+        batch_size, epoch_number = extract_parameters(folder_path)
+        if batch_size is not None and epoch_number is not None:
+            batch_sizes.append(batch_size)
+            epoch_numbers.append(epoch_number)
+            iou_values.append(avg_iou)
+
+    plt.figure(figsize=(10, 6))
+    
+    # Create a scatter plot of average IoU vs. epoch number, color-coded by batch size
+    scatter = plt.scatter(epoch_numbers, iou_values, c=batch_sizes, cmap='viridis', s=100, edgecolors='k')
+    plt.title('Average IoU vs. Epoch Number (Color-coded by Batch Size)')
+    plt.xlabel('Epoch Number')
+    plt.ylabel('Average IoU')
+    cbar = plt.colorbar(scatter)
+    cbar.set_label('Batch Size')
+    
+    plt.tight_layout()
+    plt.savefig("iou_results.png")
+    plt.show()
+
 
 if __name__ == '__main__':
     main()
