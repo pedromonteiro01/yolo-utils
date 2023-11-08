@@ -1,13 +1,18 @@
-import subprocess
 import os
 from pathlib import Path
+import subprocess
 
 def generate_confusion_matrix(yolov5_dir, data_yaml, weights, batch_size, img_size, conf_thres, iou_thres, task):
+    # Ensure the paths are absolute
+    yolov5_dir = Path(yolov5_dir).resolve()
+    data_yaml = Path(data_yaml).resolve()
+    weights = Path(weights).resolve()
+
     # Run the validation script from YOLOv5
     cmd = [
         'python3', 'val.py',
-        '--weights', weights,
-        '--data', data_yaml,
+        '--weights', str(weights),
+        '--data', str(data_yaml),
         '--img', str(img_size),
         '--batch', str(batch_size),
         '--conf', str(conf_thres),
@@ -27,9 +32,10 @@ def generate_confusion_matrix(yolov5_dir, data_yaml, weights, batch_size, img_si
 
 # Example usage of the function
 if __name__ == "__main__":
-    yolov5_dir = base_dir = Path(__file__).parent / 'yolov5'
-    data_yaml = base_dir = Path(__file__).parent / 'dataset.yaml'
-    weights = base_dir = Path(__file__).parent / 'yolov5s-model.pt'
+    script_dir = Path(__file__).parent
+    yolov5_dir = script_dir / 'yolov5'
+    data_yaml = script_dir / 'dataset.yaml'
+    weights = script_dir / 'yolov5' / 'runs' / 'train' / 'exp' / 'weights' / 'best.pt'
     batch_size = 16
     img_size = 640
     conf_thres = 0.25
