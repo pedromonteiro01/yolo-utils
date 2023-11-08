@@ -5,7 +5,7 @@ import matplotlib.cm as cm
 import yaml
 
 def evaluate_model(weight_file):
-    command = f"python3 val.py --weights {weight_file} --data dataset.yaml --img 640 --conf 0.25 --iou 0.5"
+    command = f"python3 yolov5/val.py --weights {weight_file} --data dataset.yaml --img 640 --conf 0.25 --iou 0.5"
     result = subprocess.run(command, shell=True, text=True, capture_output=True)
     
     return result.stderr
