@@ -69,14 +69,6 @@ def find_best_config():
                         best_weight = weight_path
                         best_epochs = epochs
                         best_batch_size = batch_size
-    
-    print(f"\n\nbest_weight {best_weight}\n")
-    print(f"best_mAP50 {best_mAP50}\n")
-    print(f"best_epochs {best_epochs}\n")
-    print(f"best_batch_size {best_batch_size}\n")
-    print(f"mAP50_values {mAP50_values}\n")
-    print(f"all_epochs {all_epochs}\n")
-    print(f"all_batch_sizes {all_batch_sizes}\n\n")
                         
     return best_weight, best_mAP50, best_epochs, best_batch_size, mAP50_values, all_epochs, all_batch_sizes
 
