@@ -1,4 +1,7 @@
-# test_conf_matrix.py
+# Author: Pedro Monteiro
+# Date: November 2023
+# Computer Science Engineering MSc
+# Aveiro University
 
 import pytest
 from conf_matrix import generate_confusion_matrix
@@ -23,7 +26,6 @@ def test_generate_confusion_matrix(yolov5_dir, data_yaml, weights):
     iou_thres = 0.45
     task = 'val'
 
-    # Call the function with the fixtures
     generate_confusion_matrix(yolov5_dir, data_yaml, weights, batch_size, img_size, conf_thres, iou_thres, task)
 
     results_dir = yolov5_dir / 'runs/val/conf_matrix'

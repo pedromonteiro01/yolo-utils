@@ -1,36 +1,36 @@
+# Author: Pedro Monteiro
+# Date: November 2023
+# Computer Science Engineering MSc
+# Aveiro University
+
 import os
 from pathlib import Path
 import subprocess
 
 def generate_confusion_matrix(yolov5_dir, data_yaml, weights, batch_size, img_size, conf_thres, iou_thres, task):
-    # Ensure the paths are absolute
+    # convert provided directory paths to absolute paths
     yolov5_dir = Path(yolov5_dir).resolve()
     data_yaml = Path(data_yaml).resolve()
     weights = Path(weights).resolve()
 
-    # Run the validation script from YOLOv5
     cmd = [
         'python3', 'val.py',
-        '--weights', str(weights),
-        '--data', str(data_yaml),
-        '--img', str(img_size),
-        '--batch', str(batch_size),
-        '--conf', str(conf_thres),
-        '--iou', str(iou_thres),
-        '--task', task,
+        '--weights', str(weights), # specify the path to the model weights
+        '--data', str(data_yaml),  # specify the dataset configuration file
+        '--img', str(img_size), # specify the image size
+        '--batch', str(batch_size), # specify the batch size
+        '--conf', str(conf_thres), # specify the confidence threshold
+        '--iou', str(iou_thres), # specify the IoU (Intersection over Union) threshold
+        '--task', task, # specify the task (e.g., 'val' for validation)
         '--name', 'conf_matrix'  # name of the run for saving results
     ]
 
-    # Change the current working directory to YOLOv5
-    os.chdir(yolov5_dir)
+    os.chdir(yolov5_dir) # change the current working directory to YOLOv5
 
-    # Execute the command
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, text=True)
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, text=True) # execute command
 
-    # Process result if necessary
     print(result.stdout)
 
-# Example usage of the function
 if __name__ == "__main__":
     script_dir = Path(__file__).parent
     yolov5_dir = script_dir / 'yolov5'

@@ -1,3 +1,8 @@
+# Author: Pedro Monteiro
+# Date: November 2023
+# Computer Science Engineering MSc
+# Aveiro University
+
 import os
 import torch
 import pytest
@@ -11,29 +16,29 @@ def mock_data():
     os.makedirs(detect_folder, exist_ok=True)
     os.makedirs(valid_folder, exist_ok=True)
 
-    # Create mock detection file simulating YOLO's output with multiple objects
+    # create mock detection file simulating YOLO's output with multiple objects
     with open(os.path.join(detect_folder, 'mock_detect.txt'), 'w') as f:
         f.write('0 0.5 0.5 0.5 0.5 0.9\n')  # Object 1
         f.write('1 0.7 0.7 0.2 0.2 0.8\n')  # Object 2
 
-    # Create mock validation label file with multiple objects
+    # create mock validation label file with multiple objects
     with open(os.path.join(valid_folder, 'mock_valid.txt'), 'w') as f:
         f.write('0 0.5 0.5 0.4 0.4\n')  # Object 1
         f.write('1 0.7 0.7 0.2 0.2\n')  # Object 2
 
-    # Create mock detection file with 3 objects
+    # create mock detection file with 3 objects
     with open(os.path.join(detect_folder, 'mock_detect_3objs.txt'), 'w') as f:
         f.write('0 0.5 0.5 0.5 0.5 0.9\n')  # Object 1
         f.write('1 0.7 0.7 0.2 0.2 0.8\n')  # Object 2
         f.write('2 0.3 0.3 0.2 0.2 0.7\n')  # Object 3
 
-    # Create mock validation label file with 3 objects
+    # create mock validation label file with 3 objects
     with open(os.path.join(valid_folder, 'mock_valid_3objs.txt'), 'w') as f:
         f.write('0 0.5 0.5 0.4 0.4\n')  # Object 1
         f.write('1 0.7 0.7 0.2 0.2\n')  # Object 2
         f.write('2 0.3 0.3 0.2 0.2\n')  # Object 3
 
-    # Create mock 'exp' directory and detection file
+    # create mock 'exp' directory and detection file
     exp_folder = os.path.join(detect_folder, 'batch2_epoch10')
     os.makedirs(exp_folder, exist_ok=True)
     labels_folder = os.path.join(exp_folder, 'labels')
@@ -43,7 +48,7 @@ def mock_data():
 
     yield detect_folder, valid_folder
 
-    # Cleanup mock directories after testing
+    # cleanup mock directories after testing
     os.remove(os.path.join(labels_folder, 'mock_detect_exp.txt'))
     os.rmdir(labels_folder)
     os.rmdir(exp_folder)
@@ -56,14 +61,14 @@ def mock_data():
 def test_load_tensor_from_file(mock_data):
     detect_folder, _ = mock_data
     tensor = load_tensor_from_file(os.path.join(detect_folder, 'mock_detect.txt'))
-    expected_tensor = torch.tensor([[0, 0.5, 0.5, 0.5, 0.5, 0.9],  # Object 1
-                                    [1, 0.7, 0.7, 0.2, 0.2, 0.8]])  # Object 2
+    expected_tensor = torch.tensor([[0, 0.5, 0.5, 0.5, 0.5, 0.9],  # object 1
+                                    [1, 0.7, 0.7, 0.2, 0.2, 0.8]])  # object 2
     assert torch.equal(tensor, expected_tensor)
 
 def test_get_sample_data(mock_data):
     detect_folder, _ = mock_data
     detections = get_sample_data(detect_folder)
-    assert detections[0].shape[0] == 2  # Check the number of rows in the first tensor
+    assert detections[0].shape[0] == 2  # check the number of rows in the first tensor
 
 def test_yolo_to_corner():
     box = torch.tensor([0.5, 0.5, 0.5, 0.5])
@@ -76,7 +81,7 @@ def test_compute_average_iou(mock_data):
     detections = get_sample_data(detect_folder)
     labels = get_sample_data(valid_folder)
     avg_iou = compute_average_iou(detections, labels)
-    expected_iou = (0.64 + 1.0 + 0.64 + 1.0 + 1.0) / 5  # Average IoU for all objects
+    expected_iou = (0.64 + 1.0 + 0.64 + 1.0 + 1.0) / 5  # average IoU for all objects
     assert round(avg_iou, 2) == round(expected_iou, 2)
 
 def test_main(mock_data):
@@ -95,5 +100,5 @@ def test_get_sample_data_3objs(mock_data):
     labels = get_sample_data(valid_folder)
     detect_3objs = next(tensor for tensor in detections if tensor.shape[0] == 3)
     label_3objs = next(tensor for tensor in labels if tensor.shape[0] == 3)
-    assert detect_3objs.shape[0] == 3  # Check the number of rows in the tensor
-    assert label_3objs.shape[0] == 3  # Check the number of rows in the tensor
+    assert detect_3objs.shape[0] == 3  # check the number of rows in the tensor
+    assert label_3objs.shape[0] == 3  # check the number of rows in the tensor

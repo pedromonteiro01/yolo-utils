@@ -1,3 +1,8 @@
+# Author: Pedro Monteiro
+# Date: November 2023
+# Computer Science Engineering MSc
+# Aveiro University
+
 import subprocess
 import os
 import matplotlib.pyplot as plt
@@ -11,16 +16,17 @@ def evaluate_model(weight_file):
     return result.stderr
 
 def extract_metrics(output):
-    mAP50 = 0.0
+    mAP50 = 0.0 # initialize mAP50 metric to zero
     
-    for line in output.split("\n"):
+    for line in output.split("\n"): # parse the output to extract mAP50 value
         if "all" in line:
             metrics = line.split()
-            mAP50 = float(metrics[5])
+            mAP50 = float(metrics[5]) # extract mAP50 from the parsed line
     
     return mAP50
 
 def extract_details_from_opt(exp_path):
+    # read opt.yaml file in the experiment path to extract training details
     with open(os.path.join(exp_path, 'opt.yaml'), 'r') as f:
         opt_data = yaml.safe_load(f)
         epochs = opt_data['epochs']
@@ -30,6 +36,7 @@ def extract_details_from_opt(exp_path):
 def find_best_config():
     base_dir = "yolov5/runs/train"
     
+    # initialize variables to track the best model configuration
     best_weight = None
     best_mAP50 = 0.0
     best_epochs = 0
@@ -57,14 +64,14 @@ def find_best_config():
                     weight_path = os.path.join(current_dir, filename)
 
                     output = evaluate_model(weight_path)
-                    mAP50 = extract_metrics(output)  # Extract mAP50 metric
+                    mAP50 = extract_metrics(output)  # extract mAP50 metric
                     
                     # store plot values
                     mAP50_values.append(mAP50)
                     all_epochs.append(epochs)
                     all_batch_sizes.append(batch_size)
 
-                    if mAP50 > best_mAP50:
+                    if mAP50 > best_mAP50: # update the best model configuration if current mAP50 is higher
                         best_mAP50 = mAP50
                         best_weight = weight_path
                         best_epochs = epochs
@@ -75,7 +82,7 @@ def find_best_config():
 def plot_results(mAP50_values, epochs, batch_sizes):
     plt.figure(figsize=(10, 6))
     
-    # mAP50 vs. Epochs
+    # plotting mAP50 values against epochs, color-coded by batch sizes
     scatter = plt.scatter(epochs, mAP50_values, c=batch_sizes, cmap='viridis', s=100, edgecolors='k')
     plt.title('mAP50 vs. Epochs (Color-coded by Batch Size)')
     plt.xlabel('Epochs')

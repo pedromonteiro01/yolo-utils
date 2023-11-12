@@ -1,3 +1,8 @@
+# Author: Pedro Monteiro
+# Date: November 2023
+# Computer Science Engineering MSc
+# Aveiro University
+
 import os
 import torch
 import argparse
@@ -6,17 +11,20 @@ import matplotlib.pyplot as plt
 import re
 
 def load_tensor_from_file(filename):
+    # load and convert bounding box data from a file into a PyTorch tensor
     with open(filename, 'r') as f:
         lines = f.readlines()
         data = [list(map(float, line.strip().split())) for line in lines]
     return torch.tensor(data)
 
 def get_sample_data(folder_path):
+    # retrieve bounding box data from all text files in a folder
     files = [load_tensor_from_file(os.path.join(folder_path, file))
              for file in os.listdir(folder_path) if file.endswith('.txt')]
     return files
 
 def yolo_to_corner(box):
+    # convert YOLO format bounding boxes to corner format
     x_center, y_center, width, height = box
     x1 = x_center - (width / 2)
     y1 = y_center - (height / 2)
@@ -25,6 +33,7 @@ def yolo_to_corner(box):
     return torch.tensor([x1, y1, x2, y2])
 
 def compute_average_iou(detections, labels):
+    # calculate the average IoU between detections and labels for a dataset
     iou_values = []
     if not detections or not labels:
         return None
@@ -56,16 +65,15 @@ def main(detect_folder=None, valid_folder=None):
         detect_folder = args.detect_folder
         valid_folder = args.valid_folder
 
-    # Load validation labels once as they are the same for all experiments
     labels = get_sample_data(valid_folder)
 
-    # Store IoU results along with experiment folder names
-    results = []
+    results = [] # store IoU results along with experiment folder names
 
-    # Iterate over all folders under the specified detect_folder
+    # iterate over all folders under the specified detect_folder
     for folder_name in os.listdir(detect_folder):
         folder_path = os.path.join(detect_folder, folder_name)
-        # Check if the folder name matches the pattern "batch*_epoch*"
+
+        # check if the folder name matches the pattern "batch*_epoch*"
         if os.path.isdir(folder_path) and 'batch' in folder_name and 'epoch' in folder_name:
             detect_labels_path = os.path.join(folder_path, 'labels')
             detections = get_sample_data(detect_labels_path)
@@ -73,13 +81,13 @@ def main(detect_folder=None, valid_folder=None):
             if avg_iou is not None:
                 results.append((folder_path, avg_iou))
 
-    # Sort and display results by descending IoU
+    # sort and display results by descending IoU
     results.sort(key=lambda x: x[1], reverse=True)
     for folder_path, avg_iou in results:
         print(f"Evaluating folder: {folder_path}")
         print(f"Average IoU for {folder_path}: {avg_iou:.2f}\n")
 
-    # Plot the results
+    # plot the results
     plot_iou_results(results)
 
 def extract_parameters(folder_name):
@@ -90,6 +98,7 @@ def extract_parameters(folder_name):
     return batch_size, epoch_number
 
 def plot_iou_results(results):
+    # plot the IoU results against epoch numbers and batch sizes
     batch_sizes = []
     epoch_numbers = []
     iou_values = []
@@ -103,7 +112,6 @@ def plot_iou_results(results):
 
     plt.figure(figsize=(10, 6))
     
-    # Create a scatter plot of average IoU vs. epoch number, color-coded by batch size
     scatter = plt.scatter(epoch_numbers, iou_values, c=batch_sizes, cmap='viridis', s=100, edgecolors='k')
     plt.title('Average IoU vs. Epoch Number (Color-coded by Batch Size)')
     plt.xlabel('Epoch Number')

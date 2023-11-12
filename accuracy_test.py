@@ -1,4 +1,8 @@
-import pytest
+# Author: Pedro Monteiro
+# Date: November 2023
+# Computer Science Engineering MSc
+# Aveiro University
+
 import subprocess
 from unittest.mock import patch, mock_open
 from accuracy import evaluate_model, extract_metrics, extract_details_from_opt, find_best_config
@@ -18,7 +22,7 @@ def test_extract_metrics():
     all         14         15       0.82      0.528       0.63       0.34
     """
     mAP50 = extract_metrics(mocked_output)
-    assert mAP50 == 0.63  # Based on the mocked output
+    assert mAP50 == 0.63  # based on the mocked output
 
 def test_extract_details_from_opt():
     # mock the content of opt.yaml
