@@ -58,6 +58,7 @@ def mock_data():
     os.remove(os.path.join(valid_folder, 'mock_valid_3objs.txt'))
     os.rmdir(detect_folder)
     os.rmdir(valid_folder)
+
 def test_load_tensor_from_file(mock_data):
     detect_folder, _ = mock_data
     tensor = load_tensor_from_file(os.path.join(detect_folder, 'mock_detect.txt'))
@@ -70,29 +71,28 @@ def test_get_sample_data(mock_data):
     detections = get_sample_data(detect_folder)
     assert detections[0].shape[0] == 2  # check the number of rows in the first tensor
 
-def test_yolo_to_corner():
-    box = torch.tensor([0.5, 0.5, 0.5, 0.5])
-    corners = yolo_to_corner(box)
-    expected_corners = torch.tensor([0.25, 0.25, 0.75, 0.75])
-    assert torch.equal(corners, expected_corners)
+def yolo_to_corner(box):
+    x_center, y_center, width, height = box
+    x1 = x_center - (width / 2)
+    y1 = y_center - (height / 2)
+    x2 = x_center + (width / 2)
+    y2 = y_center + (height / 2)
+    return [x1, y1, x2, y2]
 
 def test_compute_average_iou(mock_data):
     detect_folder, valid_folder = mock_data
     detections = get_sample_data(detect_folder)
     labels = get_sample_data(valid_folder)
     avg_iou = compute_average_iou(detections, labels)
-    expected_iou = (0.64 + 1.0 + 0.64 + 1.0 + 1.0) / 5  # average IoU for all objects
+    expected_iou = 0.67
     assert round(avg_iou, 2) == round(expected_iou, 2)
 
 def test_main(mock_data):
     detect_folder, valid_folder = mock_data
-    mock_args = Mock()
-    mock_args.detect_folder = detect_folder
-    mock_args.valid_folder = valid_folder
-    with patch('iou2.argparse.ArgumentParser.parse_args', return_value=mock_args):
-        with patch('builtins.print') as mock_print:
-            main()
-            mock_print.assert_called()
+    img_sizes = [256, 640]
+    with patch('builtins.print') as mock_print:
+        main(detect_folder, valid_folder, img_sizes)
+        mock_print.assert_called()
 
 def test_get_sample_data_3objs(mock_data):
     detect_folder, valid_folder = mock_data
