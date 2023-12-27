@@ -12,7 +12,7 @@ def test_evaluate_model():
     mocked_output = "Mocked stderr that would come from val.py"
     with patch('subprocess.run') as mock_run:
         mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stderr=mocked_output)
-        result = evaluate_model("fake_weights.pt")
+        result = evaluate_model("fake_weights.pt", 640)
         assert result == mocked_output
 
 def test_extract_metrics():
